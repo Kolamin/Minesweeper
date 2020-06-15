@@ -18,6 +18,8 @@ fun main(args: Array<String>) {
     }
     val mtrMine = Array(9) { arrayOfNulls<String>(9) }
     val arrayOfNearbyMines = Array(9) { IntArray(9) }
+    val saveMine = Array(9) { IntArray(9) }
+
     myList.shuffle()
     val strings = myList.toTypedArray()
     var index = 0
@@ -32,6 +34,7 @@ fun main(args: Array<String>) {
     for (i in 0..8) {
         for (j in 0..8) {
             if (mtrMine[i][j] == "X") {
+                saveMine[i][j] = 1
                 continue
             } else {
                 mtrMine[i][j] = arrayOfNearbyMines[i][j].toString()
@@ -48,24 +51,43 @@ fun main(args: Array<String>) {
     makeBoard(mtrMine)
 
     var checkOut = true
+    var markerCount: Int = 0
+
 
     while (checkOut){
         print("Set/delete mines marks (x and y coordinates): > ")
         var x: Int = sc.nextInt()-1
         var y: Int = sc.nextInt()-1
 
-        when {
-            arrayOfNearbyMines[y][x] > 0 -> {
-                println("There is a number here!")
+        if (arrayOfNearbyMines[y][x] > 0) {
+            println("There is a number here!")
+        }
+        else if (mtrMine[y][x].equals(".")) {
+            mtrMine[y][x] = "*"
+            markerCount++
+            makeBoard(mtrMine)
+        }
+        else {
+            mtrMine[y][x] = "."
+            markerCount--
+            makeBoard(mtrMine)
+        }
+
+        var findMine: Int = 0
+        for(i in 0..8){
+            for (j in 0..8){
+                if(saveMine[i][j] == 1 && mtrMine[i][j].equals("*")){
+                    findMine++
+                }
             }
-            mtrMine[y][x].equals(".") -> {
-                mtrMine[y][x] = "*"
-                makeBoard(mtrMine)
-            }
-            else -> {
-                mtrMine[y][x] = "."
-                makeBoard(mtrMine)
-            }
+        }
+
+        //println("markerCount = $markerCount, findMine = $findMine")
+
+        if(markerCount == findMine && markerCount == mine){
+            println("Congratulations! You found all the mines!")
+
+            checkOut = false
         }
     }
 }
@@ -106,6 +128,7 @@ fun countMine(mtrMine: Array<Array<String?>>, arrayOfNearbyMines: Array<IntArray
 }
 
 fun makeBoard(array: Array<Array<String?>>) {
+    println()
     println(" │123456789│")
     println("—│—————————│")
     var index = 1
